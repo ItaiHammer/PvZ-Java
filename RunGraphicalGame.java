@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class RunGraphicalGame extends PApplet {
 	int fps = 60;
-	int sunSpawnTime = 20;
-	int zombieSpawnTime = 20;
+	int sunSpawnTime = 30;
+	int zombieSpawnTime = 50;
 	int innerWidth = 800;
 	int innerHeight = 600;
 
@@ -186,7 +186,7 @@ public class RunGraphicalGame extends PApplet {
 			int currentSunId = removedSuns.get(i);
 			System.out.println(currentSunId);
 
-			removeSun(currentSunId-i);
+			removeSun(currentSunId, i);
 		}
 
 		if (game.isGameOver()) {
@@ -228,30 +228,37 @@ public class RunGraphicalGame extends PApplet {
 		int sunSize = 80;
 		int x = (int)((Math.random() * innerWidth - sunSize)+sunSize);
 		int y = -sunSize;
-		int fallAmount = (int)((Math.random() * innerHeight - 300) + 300);
+		int fallAmount = (int)(Math.random() * ((innerHeight-((100/innerHeight)*50))*2) + 200);
 
-		Sun currentSun = new Sun(sunSize, x, y, fallAmount, 20*fps, sunIndexCount);
+		Sun currentSun = new Sun(sunSize, x, y, fallAmount, (fallAmount/30)*fps, sunIndexCount);
 		sunIndexCount++;
 		activeSuns.add(currentSun);
 	}
 
-	public void removeSun(int id) {
+	public void removeSun(int id, int offset) {
 		int index = 0;
+		boolean found = false;
 
 		for (int i = 0; i < activeSuns.size(); i++) {
 			Sun currentSun = activeSuns.get(i);
 
-			if(currentSun == activeSuns.get(id)) {
-				activeSuns.remove(index);
+			if(currentSun.id == id) {
+				found = true;
 			}
-			index++;
+			if (!found) {
+				index++;
+			}
+		}
+
+		if (found) {
+			activeSuns.remove(index);
 		}
 	}
 
 	public void spawnNormalZombie() {
 		int zombieSize = 100;
 		int row = (int)(Math.random()*5);
-		int x = innerWidth - zombieSize;
+		int x = innerWidth;
 		int y = row*100;
 
 		ArrayList<PImage> normalWalkingAnimation = new ArrayList<PImage>();
