@@ -35,7 +35,7 @@ public class Display {
         this.h = h;
         this.p = p;
 
-        EMPTY_COLOR = p.color(0, 0, 0, 0);
+        EMPTY_COLOR = p.color(0, 0, 0, 1);
         UNKNOWN_COLOR = p.color(200, 200, 200);
 
         colors = new LinkedHashMap<Object, Integer>();
@@ -57,6 +57,7 @@ public class Display {
                     p.image(pieceImage, x + j * dx, y + i * dy, dx, dy);
                 } else {
                     p.fill(getColor(piece));
+                    p.stroke(p.color(0, 0, 0, 1));
                     p.rect(x + j * dx, y + i * dy, dx, dy);
                 }
             }
@@ -198,7 +199,7 @@ public class Display {
     }
 
     public void initializeWithGame(GameBoard game) {
-        int[][] grid = game.getGrid();
+        int[][] grid = RunGraphicalGame.plantGridRenderer(game.getGrid());
         if (grid == null) {
             System.out
                     .println("Your 2d int array grid is null!  Create it by saying grid = new int[___][___] inside your constructor!");

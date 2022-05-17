@@ -11,7 +11,7 @@ public class RunTextGame {
 
         while ( game.isGameOver() == false ) {
 
-            displayBoard( game.getGrid(), true );
+            displayBoard( RunGraphicalGame.plantGridRenderer(game.getGrid()), true );
 
             String userMove = getUserMove();
 
@@ -27,7 +27,7 @@ public class RunTextGame {
 
         }
 
-        displayBoard( game.getGrid(), true );
+        displayBoard( RunGraphicalGame.plantGridRenderer(game.getGrid()), true );
 
         System.out.println("Game is over!");
     }
