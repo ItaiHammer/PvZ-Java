@@ -14,6 +14,10 @@ public class RunGraphicalGame extends PApplet {
 	ArrayList<Sun> activeSuns = new ArrayList<Sun>();
 	ArrayList<ArrayList<Zombie>> activeZombies = new ArrayList<ArrayList<Zombie>>();
 
+	PImage zombieImage;
+	PImage sunImage;
+	PImage background;
+
 
 	int indexCount = 0;
 	int sunIndexCount = 0; // sun id
@@ -38,6 +42,15 @@ public class RunGraphicalGame extends PApplet {
 //		settings timers
 		sunSpawnCount = (int)(sunSpawnTime * frameRate);
 		zombieSpawnCount = (int)(zombieSpawnTime * frameRate);
+
+		// background image
+		background = loadImage("Background1.png");
+
+		// zombie images
+		zombieImage = loadImage("zombies/normal/normalIdleAnimation/normalIdleAnimation1.png");
+
+		// sun image
+		sunImage = loadImage("sun.png");
 
 //		handling images
 //		defining plants
@@ -98,6 +111,7 @@ public class RunGraphicalGame extends PApplet {
 
 	@Override
 	public void draw() {
+//		System.out.println(frameRate);
 //		timers
 		// sun spawn timer
 		if (sunSpawnCount >= 0) {
@@ -118,7 +132,7 @@ public class RunGraphicalGame extends PApplet {
 		}
 
 //		visuals
-		image(loadImage("Background1.png"), -220, 0);
+		image(background, -220, 0);
 
 		display.drawGrid(plantGridRenderer(game.getGrid())); // display the game
 
@@ -131,24 +145,22 @@ public class RunGraphicalGame extends PApplet {
 			for (int j = 0; j < currentList.size(); j++) {
 				Zombie zombie = activeZombies.get(i).get(j);
 
-				System.out.println(getGridLocation(zombie));
+//				System.out.println(getGridLocation(zombie));
 
 				if (!zombieAttack(zombie)) {
-					zombie.x -= zombie.speed;
+					zombie.x -= 0.1;
 				}
 
-				PImage zombieImage = loadImage("zombies/normal/normalIdleAnimation/normalIdleAnimation1.png");
 				image(zombieImage, zombie.x, zombie.y, (int)(zombie.size), (int)(zombie.size*1.5));
 			}
 		}
 
-		int removedSuns = 0;
+		ArrayList<Integer> removedSuns = new ArrayList<Integer>();
 
 		// draws suns
-		for (int i = 0; i < activeSuns.size()-removedSuns; i++) {
+		for (int i = 0; i < activeSuns.size(); i++) {
 			Sun sun = activeSuns.get(i);
-			PImage sunImage = loadImage("sun.png");
-			int animationSpeed = 3;
+			int animationSpeed = 1;
 
 			sun.fall();
 			sun.timer -= animationSpeed;
@@ -157,8 +169,8 @@ public class RunGraphicalGame extends PApplet {
 					sun.opacity -= animationSpeed*2;
 					tint(255, sun.opacity);
 				}else {
-					removeSun(sun.id);
-					removedSuns++;
+					tint(255, 1);
+					removedSuns.add(sun.id);
 				}
 			}
 
@@ -167,6 +179,14 @@ public class RunGraphicalGame extends PApplet {
 
 			image(sunImage, sun.x, sun.y, sun.size, sun.size);
 			tint(255, 255);
+		}
+
+		// removing suns from arraylist
+		for (int i = 0;i < removedSuns.size(); i++) {
+			int currentSunId = removedSuns.get(i);
+			System.out.println(currentSunId);
+
+			removeSun(currentSunId-i);
 		}
 
 		if (game.isGameOver()) {
@@ -210,7 +230,7 @@ public class RunGraphicalGame extends PApplet {
 		int y = -sunSize;
 		int fallAmount = (int)((Math.random() * innerHeight - 300) + 300);
 
-		Sun currentSun = new Sun(sunSize, x, y, fallAmount, 10*fps, sunIndexCount);
+		Sun currentSun = new Sun(sunSize, x, y, fallAmount, 20*fps, sunIndexCount);
 		sunIndexCount++;
 		activeSuns.add(currentSun);
 	}
@@ -219,12 +239,12 @@ public class RunGraphicalGame extends PApplet {
 		int index = 0;
 
 		for (int i = 0; i < activeSuns.size(); i++) {
-			index++;
 			Sun currentSun = activeSuns.get(i);
 
 			if(currentSun == activeSuns.get(id)) {
 				activeSuns.remove(index);
 			}
+			index++;
 		}
 	}
 
@@ -242,7 +262,7 @@ public class RunGraphicalGame extends PApplet {
 		normalWalkingAnimation.add(normalWalkingAnimation1);
 		normalEatingAnimation.add(normalWalkingAnimation1);
 
-		Zombie currentZombie = new Zombie(x, y, normalWalkingAnimation, normalEatingAnimation, zombieSize, 100, 2, 10, 5*fps, 0, row+1);
+		Zombie currentZombie = new Zombie(x, y, normalWalkingAnimation, normalEatingAnimation, zombieSize, 100, 10, 1, 1*fps, 0, row+1);
 
 		for (int i = 1; i < 6; i++) {
 			if (row == i) {
@@ -282,7 +302,7 @@ public class RunGraphicalGame extends PApplet {
 	}
 
 	public int getGridLocation (Zombie zombie) {
-		int x = zombie.x + zombie.size;
+		int x = (int)(zombie.x) + zombie.size;
 		int squareWidth = (int)(900/1.2)/9;
 		int leftSideOffset = 30;
 

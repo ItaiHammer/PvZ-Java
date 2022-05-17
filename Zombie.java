@@ -6,10 +6,11 @@ import java.util.ArrayList;
 public class Zombie {
     ArrayList<PImage> walkingZombieAnimation = new ArrayList<PImage>();
     ArrayList<PImage> eatingZombieAnimation = new ArrayList<PImage>();
-    int x, y, size, health, speed, attackSpeed, animationIndex, row, damage;
+    int size, health, speed, attackSpeed, animationIndex, row, damage;
+    float x, y;
     int attackTimer = attackSpeed;
 
-    public Zombie (int x, int y, ArrayList<PImage> walkingZombieAnimation, ArrayList<PImage> eatingZombieAnimation, int size, int health, int damage, int speed, int attackSpeed, int animationIndex, int row) {
+    public Zombie (float x, float y, ArrayList<PImage> walkingZombieAnimation, ArrayList<PImage> eatingZombieAnimation, int size, int health, int damage, int speed, int attackSpeed, int animationIndex, int row) {
         this.x = x;
         this.y = y;
         this.walkingZombieAnimation = walkingZombieAnimation;

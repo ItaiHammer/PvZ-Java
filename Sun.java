@@ -1,8 +1,9 @@
 public class Sun {
-    int size, x, y, fallAmount, timer, id, opacity;
-    int speed = 3;
+    int size, fallAmount, timer, id, opacity;
+    float x, y;
+    float speed = (float) (0.5);
 
-    public Sun(int size, int x, int y, int fallAmount, int timer, int id) {
+    public Sun(int size, float x, float y, int fallAmount, int timer, int id) {
         this.size = size;
         this.x = x;
         this.y = y;
