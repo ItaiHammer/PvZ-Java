@@ -83,6 +83,10 @@ public class RunGraphicalGame extends PApplet {
 
 		game.getGrid()[0][0] = peaShooter;
 		game.getGrid()[1][0] = peaShooter;
+		game.getGrid()[2][0] = peaShooter;
+		game.getGrid()[3][0] = peaShooter;
+		game.getGrid()[4][0] = peaShooter;
+
 		game.getGrid()[0][1] = sunFlower;
 		game.getGrid()[1][1] = sunFlower;
 		game.getGrid()[2][1] = sunFlower;
@@ -148,7 +152,7 @@ public class RunGraphicalGame extends PApplet {
 //				System.out.println(getGridLocation(zombie));
 
 				if (!zombieAttack(zombie)) {
-					zombie.x -= 0.1;
+					zombie.x -= zombie.speed;
 				}
 
 				image(zombieImage, zombie.x, zombie.y, (int)(zombie.size), (int)(zombie.size*1.5));
@@ -269,7 +273,7 @@ public class RunGraphicalGame extends PApplet {
 		normalWalkingAnimation.add(normalWalkingAnimation1);
 		normalEatingAnimation.add(normalWalkingAnimation1);
 
-		Zombie currentZombie = new Zombie(x, y, normalWalkingAnimation, normalEatingAnimation, zombieSize, 100, 10, 1, 1*fps, 0, row+1);
+		Zombie currentZombie = new Zombie(x, y, normalWalkingAnimation, normalEatingAnimation, zombieSize, 100, 10, (float)(0.1), (float)(1*fps), 0, row+1);
 
 		for (int i = 1; i < 6; i++) {
 			if (row == i) {
@@ -280,23 +284,25 @@ public class RunGraphicalGame extends PApplet {
 
 	public boolean zombieAttack(Zombie zombie) {
 		if (getGridLocation(zombie) != 0) {
-			Plant plant;
+			Plant plant = null;
 
 			if (getGridLocation(zombie) >= 8) {
 				plant = game.getGrid()[zombie.row-1][getGridLocation(zombie)-1];
 			}else {
-				plant = game.getGrid()[zombie.row-1][getGridLocation(zombie)-2];
+				if (getGridLocation(zombie)-2 >= 0) {
+					plant = game.getGrid()[zombie.row-1][getGridLocation(zombie)-2];
+				}
 			}
 
 			if (plant == null) {
 				return false;
 			}else {
 				System.out.println(plant.health);
-				if (zombie.attackTimer >= 0) {
+				if (zombie.attackTimer <= 0) {
 					plant.health -= zombie.damage;
 					zombie.attackTimer = zombie.attackSpeed;
 				}else {
-					zombie.attackTimer -= 5;
+					zombie.attackTimer -= 1;
 				}
 
 				if (plant.health <= 0) {
