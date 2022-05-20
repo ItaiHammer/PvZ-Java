@@ -9,6 +9,7 @@ public class Zombie {
     int size, health, animationIndex, row, damage;
     float x, y, speed, attackSpeed;
     float attackTimer = attackSpeed;
+    int opacity = 255;
 
     public Zombie (float x, float y, ArrayList<PImage> walkingZombieAnimation, ArrayList<PImage> eatingZombieAnimation, int size, int health, int damage, float speed, float attackSpeed, int animationIndex, int row) {
         this.x = x;
@@ -23,6 +24,7 @@ public class Zombie {
         this.row = row;
         this.attackTimer = attackTimer;
         this.damage = damage;
+        this.opacity = opacity;
 
     }
 

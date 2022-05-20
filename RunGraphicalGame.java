@@ -1,5 +1,6 @@
 import processing.core.*;
-
+import ddf.minim.AudioPlayer;
+import ddf.minim.Minim;
 import java.util.ArrayList;
 
 public class RunGraphicalGame extends PApplet {
@@ -8,21 +9,36 @@ public class RunGraphicalGame extends PApplet {
 	int zombieSpawnTime = 50;
 	int innerWidth = 800;
 	int innerHeight = 600;
+	int amountOfSuns = 50;
+	boolean isGameOver = false;
 
-	GameBoard game;
+	static GameBoard game;
 	Display display;
 	ArrayList<Sun> activeSuns = new ArrayList<Sun>();
 	ArrayList<ArrayList<Zombie>> activeZombies = new ArrayList<ArrayList<Zombie>>();
+	static ArrayList<PeaShooterProjectile> activePeaShooterProjectiles = new ArrayList<PeaShooterProjectile>();
 
+	// images
 	PImage zombieImage;
 	PImage sunImage;
 	PImage background;
+	PImage plantMenu;
+	PImage gameOverScreen;
+	PImage peaShooterProjectileImage;
 
+//	sounds
+	Minim loader;
+	AudioPlayer song;
+	AudioPlayer gameoverAudio;
+	AudioPlayer theZombiesAreComingSound;
+	AudioPlayer brainzSound;
+	AudioPlayer zombieEating;
 
 	int indexCount = 0;
 	int sunIndexCount = 0; // sun id
 	int sunSpawnCount = 0;
 	int zombieSpawnCount = 0; // zombie timer
+	int gameOverScreenOpacityTimer = 0;
 
 //	list of plant indexes
 	ArrayList<Plant> plantList = new ArrayList<Plant>();
@@ -34,6 +50,18 @@ public class RunGraphicalGame extends PApplet {
 	public void setup() {
 		frameRate((float)(fps));
 
+		// setting audio
+		loader = new Minim(this);
+
+		song = loader.loadFile("Loonboon.mp3");
+		gameoverAudio = loader.loadFile("gameover.mp3");
+		theZombiesAreComingSound = loader.loadFile("theZombiesAreComing.mp3");
+		brainzSound = loader.loadFile("Brainz.mp3");
+		zombieEating = loader.loadFile("zombieEating.mp3");
+
+		// playing initial sounds
+		theZombiesAreComingSound.play();
+
 		// adding rows to zombies
 		for (int i = 0; i < 5; i++) {
 			activeZombies.add(new ArrayList<Zombie>());
@@ -43,14 +71,13 @@ public class RunGraphicalGame extends PApplet {
 		sunSpawnCount = (int)(sunSpawnTime * frameRate);
 		zombieSpawnCount = (int)(zombieSpawnTime * frameRate);
 
-		// background image
+		// loading image
 		background = loadImage("Background1.png");
-
-		// zombie images
 		zombieImage = loadImage("zombies/normal/normalIdleAnimation/normalIdleAnimation1.png");
-
-		// sun image
 		sunImage = loadImage("sun.png");
+		plantMenu = loadImage("plantsMenu.png");
+		gameOverScreen = loadImage("gameOverScreen.png");
+		peaShooterProjectileImage = loadImage("ProjectilePea.png");
 
 //		handling images
 //		defining plants
@@ -63,7 +90,7 @@ public class RunGraphicalGame extends PApplet {
 		peaShooterIdleAnimation.add(peaShooterIdleAnimation1);
 		peaShooterShootingAnimation.add(peaShooterIdleAnimation1);
 
-		Plant peaShooter = new Plant(giveIndex(), peaShooterIdleAnimation, peaShooterShootingAnimation, 100, 20, 0);
+		Plant peaShooter = new Plant(giveIndex(), peaShooterIdleAnimation, peaShooterShootingAnimation, 100, 0, 0, 30*fps);
 		plantList.add(peaShooter);
 
 		// sunflower: 2
@@ -75,7 +102,7 @@ public class RunGraphicalGame extends PApplet {
 		sunFlowerIdleAnimation.add(sunFlowerIdleAnimation1);
 		sunFlowerShootingAnimation.add(sunFlowerIdleAnimation1);
 
-		Plant sunFlower = new Plant(giveIndex(), sunFlowerIdleAnimation, sunFlowerShootingAnimation, 100, 0, 0);
+		Plant sunFlower = new Plant(giveIndex(), sunFlowerIdleAnimation, sunFlowerShootingAnimation, 100, 1, 0, 30*fps);
 		plantList.add(sunFlower);
 
 		// Create a game object
@@ -84,14 +111,10 @@ public class RunGraphicalGame extends PApplet {
 		game.getGrid()[0][0] = peaShooter;
 		game.getGrid()[1][0] = peaShooter;
 		game.getGrid()[2][0] = peaShooter;
-		game.getGrid()[3][0] = peaShooter;
-		game.getGrid()[4][0] = peaShooter;
 
 		game.getGrid()[0][1] = sunFlower;
 		game.getGrid()[1][1] = sunFlower;
 		game.getGrid()[2][1] = sunFlower;
-		game.getGrid()[3][1] = sunFlower;
-		game.getGrid()[4][1] = sunFlower;
 
 		// Create the display
 		// parameters: (10,10) is upper left of display
@@ -108,7 +131,7 @@ public class RunGraphicalGame extends PApplet {
 		display.initializeWithGame(game);
 
 		spawnSun();
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 2; i++) {
 			spawnNormalZombie();
 		}
 	}
@@ -116,7 +139,15 @@ public class RunGraphicalGame extends PApplet {
 	@Override
 	public void draw() {
 //		System.out.println(frameRate);
+
+		// playing music
+		if (!theZombiesAreComingSound.isPlaying() && !song.isPlaying()) {
+			song.play();
+			song.loop();
+		}
+
 //		timers
+
 		// sun spawn timer
 		if (sunSpawnCount >= 0) {
 			sunSpawnCount--;
@@ -136,10 +167,38 @@ public class RunGraphicalGame extends PApplet {
 		}
 
 //		visuals
+		// background
 		image(background, -220, 0);
+
+		// plants menu
+		image(plantMenu, 20, 0);
+		image(sunImage, 30, 3, 60, 60);
+
+		fill(color(0, 0, 0));
+		textSize(20);
+		text(amountOfSuns, (int)(68 - (String.valueOf(amountOfSuns).length() * 9.5)), 80);
+
+		// plants listed in plant menu
+		fill(color(0, 0, 0));
+//		rect(95, 5, 50, 75);
+
+		for (int i = 0; i < 10; i++) {
+			rect(95+(i*52), 4, 50, 75);
+		}
+
 
 		display.drawGrid(plantGridRenderer(game.getGrid())); // display the game
 
+		// plantMoves
+		for (int r = 0; r < game.getGrid().length; r++) {
+			for (int c = 0; c < game.getGrid()[0].length; c++) {
+				if (game.getGrid()[r][c] != null) {
+					Plant plant = game.getGrid()[r][c];
+
+					plant.move(game, activePeaShooterProjectiles, activeZombies, activeSuns);
+				}
+			}
+		}
 
 
 		// draws normal zombies
@@ -155,13 +214,34 @@ public class RunGraphicalGame extends PApplet {
 					zombie.x -= zombie.speed;
 				}
 
+				tint(255, zombie.opacity);
 				image(zombieImage, zombie.x, zombie.y, (int)(zombie.size), (int)(zombie.size*1.5));
+				tint(255, 255);
+
+				if (zombie.opacity > 0 && zombie.health <= 0) {
+					zombie.opacity -= 30;
+				}else if (zombie.opacity <= 0 && zombie.health <= 0) {
+					activeZombies.get(zombie.row-2).remove(zombie);
+				}
+
+				if (zombie.x + zombie.size <= 0) {
+					isGameOver = true;
+				}
 			}
 		}
 
-		ArrayList<Integer> removedSuns = new ArrayList<Integer>();
+		// drawing peaShooterProjectiles
+		for (int i = 0; i < activePeaShooterProjectiles.size(); i++) {
+			PeaShooterProjectile peaShooterProjectile = activePeaShooterProjectiles.get(i);
+			int size = 30;
+
+			image(peaShooterProjectileImage, peaShooterProjectile.x, peaShooterProjectile.y, size, size);
+			peaShooterProjectile.move(peaShooterProjectile, activeZombies, activePeaShooterProjectiles, size, innerWidth);
+		}
+
 
 		// draws suns
+		ArrayList<Integer> removedSuns = new ArrayList<Integer>();
 		for (int i = 0; i < activeSuns.size(); i++) {
 			Sun sun = activeSuns.get(i);
 			int animationSpeed = 1;
@@ -188,25 +268,46 @@ public class RunGraphicalGame extends PApplet {
 		// removing suns from arraylist
 		for (int i = 0;i < removedSuns.size(); i++) {
 			int currentSunId = removedSuns.get(i);
-			System.out.println(currentSunId);
+//			System.out.println(currentSunId);
 
 			removeSun(currentSunId, i);
 		}
 
-		if (game.isGameOver()) {
-			textSize(64);
-			fill(0);
-			textAlign(CENTER, CENTER);
-			text("Game Over!", width/2, height/2);
+		if (isGameOver) {
+			song.close();
+			gameoverAudio.play();
+
+			gameOverScreenOpacityTimer++;
+			if (gameOverScreenOpacityTimer < 255) {
+				gameOverScreenOpacityTimer += 5;
+			}
+			tint(255, gameOverScreenOpacityTimer);
+			image(gameOverScreen, 0, 0, innerWidth, innerHeight);
 		}
 	}
 
 	public void mouseReleased() {
-		Location loc = display.gridLocationAt(mouseX, mouseY);
-		int row = loc.getRow();
-		int col = loc.getCol();
+		boolean sunFound = false;
 
-		game.move(row, col);
+		for (int i = 0; i < activeSuns.size(); i++) {
+			Sun sun = activeSuns.get(i);
+			double distance = Math.sqrt(Math.pow(sun.x - mouseX, 2) + Math.pow(sun.y - mouseY, 2));
+
+			if (distance <= sun.size && sun.opacity == 255) {
+				sunFound = true;
+				amountOfSuns += 25;
+
+				sun.timer = 0;
+			}
+		}
+
+		if (!sunFound) {
+			Location loc = display.gridLocationAt(mouseX, mouseY);
+			int row = loc.getRow();
+			int col = loc.getCol();
+
+			game.move(row, col);
+		}
 	}
 
 	public static int[][] plantGridRenderer(Plant[][] plantGrid) {
@@ -232,7 +333,7 @@ public class RunGraphicalGame extends PApplet {
 		int sunSize = 80;
 		int x = (int)((Math.random() * innerWidth - sunSize)+sunSize);
 		int y = -sunSize;
-		int fallAmount = (int)(Math.random() * ((innerHeight-((100/innerHeight)*50))*2) + 200);
+		int fallAmount = (int)(Math.random() * ((innerHeight-((50/innerHeight)*50))*2) + 200);
 
 		Sun currentSun = new Sun(sunSize, x, y, fallAmount, (fallAmount/30)*fps, sunIndexCount);
 		sunIndexCount++;
@@ -261,9 +362,12 @@ public class RunGraphicalGame extends PApplet {
 
 	public void spawnNormalZombie() {
 		int zombieSize = 100;
-		int row = (int)(Math.random()*5);
+		int row = (int)(Math.random()*6);
 		int x = innerWidth;
-		int y = row*100;
+		int y = -100+row*100;
+
+		brainzSound.rewind();
+		brainzSound.play();
 
 		ArrayList<PImage> normalWalkingAnimation = new ArrayList<PImage>();
 		ArrayList<PImage> normalEatingAnimation = new ArrayList<PImage>();
@@ -273,7 +377,7 @@ public class RunGraphicalGame extends PApplet {
 		normalWalkingAnimation.add(normalWalkingAnimation1);
 		normalEatingAnimation.add(normalWalkingAnimation1);
 
-		Zombie currentZombie = new Zombie(x, y, normalWalkingAnimation, normalEatingAnimation, zombieSize, 100, 10, (float)(0.1), (float)(1*fps), 0, row+1);
+		Zombie currentZombie = new Zombie(x, y, normalWalkingAnimation, normalEatingAnimation, zombieSize, 100, 10, (float)(0.6), (float)(1*fps), 0, row+1);
 
 		for (int i = 1; i < 6; i++) {
 			if (row == i) {
@@ -286,19 +390,21 @@ public class RunGraphicalGame extends PApplet {
 		if (getGridLocation(zombie) != 0) {
 			Plant plant = null;
 
-			if (getGridLocation(zombie) >= 8) {
-				plant = game.getGrid()[zombie.row-1][getGridLocation(zombie)-1];
-			}else {
-				if (getGridLocation(zombie)-2 >= 0) {
-					plant = game.getGrid()[zombie.row-1][getGridLocation(zombie)-2];
+			if (getGridLocation(zombie)-2 >= 0 && getGridLocation(zombie)-2 <= 9) {
+				if (zombie.row -1 < game.getGrid().length) {
+					plant = game.getGrid()[zombie.row-2][getGridLocation(zombie)-2];
+				}else {
+					plant = game.getGrid()[game.getGrid().length-1][getGridLocation(zombie)-2];
 				}
 			}
 
 			if (plant == null) {
 				return false;
 			}else {
-				System.out.println(plant.health);
+//				System.out.println(plant.health);
 				if (zombie.attackTimer <= 0) {
+					zombieEating.rewind();
+					zombieEating.play();
 					plant.health -= zombie.damage;
 					zombie.attackTimer = zombie.attackSpeed;
 				}else {
@@ -306,7 +412,7 @@ public class RunGraphicalGame extends PApplet {
 				}
 
 				if (plant.health <= 0) {
-					game.getGrid()[zombie.row-1][getGridLocation(zombie)-2] = null;
+					game.getGrid()[zombie.row-2][getGridLocation(zombie)-2] = null;
 				}
 				return true;
 			}
