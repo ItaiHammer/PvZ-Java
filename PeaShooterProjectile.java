@@ -4,6 +4,7 @@ public class PeaShooterProjectile {
     int row;
     float x, y;
     int damage = 20;
+    int offset = 30;
 
     public PeaShooterProjectile (float x, float y, int row) {
         this.x = x;
@@ -13,7 +14,7 @@ public class PeaShooterProjectile {
     }
 
     public void move (PeaShooterProjectile peaShooterProjectile, ArrayList<ArrayList<Zombie>> activeZombies, ArrayList<PeaShooterProjectile> activePeaShooterProjectiles, int size, int innerWidth) {
-        x += 1;
+        x += 2;
 
         if (x - size >= innerWidth) {
             activePeaShooterProjectiles.remove(peaShooterProjectile);
@@ -22,7 +23,7 @@ public class PeaShooterProjectile {
         for (int i = 0; i < activeZombies.get(row).size(); i ++) {
             Zombie zombie = activeZombies.get(row).get(i);
 
-            if (x + size > zombie.x && x - size < zombie.x + zombie.size) {
+            if (x + size - offset > zombie.x && x - size < zombie.x + zombie.size) {
                 System.out.println(zombie.health);
                 activePeaShooterProjectiles.remove(peaShooterProjectile);
 

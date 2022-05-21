@@ -5,13 +5,14 @@ import java.util.ArrayList;
 public class Plant {
     ArrayList<PImage> idlePlantAnimation = new ArrayList<PImage>();
     ArrayList<PImage> shootingPlantAnimation = new ArrayList<PImage>();
-    int index, health, strength, animationIndex, type;
+    int index, cost, health, strength, animationIndex, type;
     PImage currentFrame;
     int moveTimer;
     int moveTimerCount = moveTimer;
 
-    public Plant (int index, ArrayList<PImage> idlePlantAnimation, ArrayList<PImage> shootingPlantAnimation, int health, int type, int animationIndex, int moveTimer) {
+    public Plant (int index, int cost, ArrayList<PImage> idlePlantAnimation, ArrayList<PImage> shootingPlantAnimation, int health, int type, int animationIndex, int moveTimer) {
         this.index = index;
+        this.cost = cost;
         this.idlePlantAnimation = idlePlantAnimation;
         this.shootingPlantAnimation = shootingPlantAnimation;
         this.health = health;
@@ -51,6 +52,19 @@ public class Plant {
                         }
                     }
                 }
+            }
+        }else if (type == 1) {
+            if (moveTimerCount <= 0) {
+                System.out.println("running2");
+                int squareWidth = (int)(900/1.2)/9;
+                int squareHeight = (int)(590/1.2)/5;
+                int gridOffsetX = 30;
+                int gridOffsetY = 80;
+
+                activeSuns.add(new Sun(80, gridOffsetX + (RunGraphicalGame.getPlantLocation(index).get(0) * squareWidth + (squareWidth/2 - 40) + (float)(((int)(Math.random() * 2) - 0.5) * 2) * squareWidth/4),gridOffsetY + (RunGraphicalGame.getPlantLocation(index).get(1) * squareHeight - 20), 100, 300, RunGraphicalGame.getSunId()));
+                moveTimerCount = moveTimer;
+            }else {
+                moveTimerCount--;
             }
         }
     }
