@@ -329,10 +329,13 @@ public class RunGraphicalGame extends PApplet {
 				int row = loc.getRow();
 				int col = loc.getCol();
 
-				if (currentPlantSelected == 1) {
-					plantPeaShooter(row, col);
-				}else if (currentPlantSelected == 2) {
-					plantSunFlower(row, col);
+				// planting
+				if (row >= 0 && row < game.getGrid().length && col >= 0 && col < game.getGrid()[0].length) {
+					if (currentPlantSelected == 1) {
+						plantPeaShooter(row, col);
+					}else if (currentPlantSelected == 2) {
+						plantSunFlower(row, col);
+					}
 				}
 
 				game.move(row, col);
