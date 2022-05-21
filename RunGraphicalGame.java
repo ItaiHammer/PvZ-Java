@@ -6,6 +6,8 @@ import java.util.ArrayList;
 public class RunGraphicalGame extends PApplet {
 	int fps = 60;
 	float time = 0;
+	int secondsValue = (int)(time/60 - ((int)(time/60/60) * 60));
+	int minutesValue = (int)(time/60/60);
 	int sunSpawnTime = 10;
 	int zombieSpawnTime = 60;
 	int innerWidth = 800;
@@ -276,9 +278,7 @@ public class RunGraphicalGame extends PApplet {
 		fill(255, 255, 255);
 		textSize(20);
 
-		int secondsValue = (int)(time/60 - ((int)(time/60/60) * 60));
 		String seconds = String.valueOf(secondsValue).length() == 1 ? "0"+secondsValue : String.valueOf(secondsValue);
-		int minutesValue = (int)(time/60/60);
 		String minutes = String.valueOf(minutesValue).length() == 1 ? "0"+minutesValue : String.valueOf(minutesValue);
 
 
