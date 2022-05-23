@@ -25,7 +25,9 @@ public class RunGraphicalGame extends PApplet {
 
 	// images
 	PImage peaShooterIdleAnimation1;
+	PImage peaShooterCard;
 	PImage sunFlowerIdleAnimation1;
+	PImage sunFloweCard;
 	PImage zombieImage;
 	PImage sunImage;
 	PImage background;
@@ -83,7 +85,11 @@ public class RunGraphicalGame extends PApplet {
 		// loading image
 		background = loadImage("Background1.png");
 		peaShooterIdleAnimation1 = loadImage("plants/peaShooter/idleAnimation/peaShooterIdleAnimation1.png");
+		peaShooterCard = loadImage("plants/peaShooter/peaShooterCard.png");
+		peaShooterCard.resize(50, 75);
 		sunFlowerIdleAnimation1 = loadImage("plants/sunFlower/idleAnimation/sunflowerIdleAnimation1.png");
+		sunFloweCard = loadImage("plants/sunFlower/sunFlowerCard.png");
+		sunFloweCard.resize(50, 75);
 		zombieImage = loadImage("zombies/normal/normalIdleAnimation/normalIdleAnimation1.png");
 		sunImage = loadImage("sun.png");
 		plantMenu = loadImage("plantsMenu.png");
@@ -146,12 +152,7 @@ public class RunGraphicalGame extends PApplet {
 			zombieSpawnCount--;
 		}else {
 			spawnNormalZombie();
-			zombieIndexCount++;
-			if (zombieSpawnTime > 30) {
-				zombieSpawnTime = (int)(zombieSpawnTime/1.4);
-			}else if (zombieSpawnTime > 1) {
-				zombieSpawnTime = (int)(zombieSpawnTime/1.1);
-			}
+			zombieSpawnTime = 60 / ((minutesValue * 2)+1);
 			zombieSpawnCount = (int)(zombieSpawnTime * frameRate);
 		}
 
@@ -169,11 +170,14 @@ public class RunGraphicalGame extends PApplet {
 		text(amountOfSuns, (int)(68 - (String.valueOf(amountOfSuns).length() * 9.5)), 80);
 
 		// plants listed in plant menu
-		fill(color(0, 0, 0));
-//		rect(95, 5, 50, 75);
-
+		fill(color(255, 255, 255));
 		for (int i = 0; i < 10; i++) {
-			rect(95+(i*52), 4, 50, 75);
+
+			if (i == 0) {
+				image(peaShooterCard, 95+(i*52), 8, 50, 70);
+			}else if (i == 1) {
+				image(sunFloweCard, 95+(i*52), 8, 50, 70);
+			}
 		}
 
 
@@ -281,11 +285,16 @@ public class RunGraphicalGame extends PApplet {
 		String seconds = String.valueOf(secondsValue).length() == 1 ? "0"+secondsValue : String.valueOf(secondsValue);
 		String minutes = String.valueOf(minutesValue).length() == 1 ? "0"+minutesValue : String.valueOf(minutesValue);
 
+		secondsValue = (int)(time/60 - ((int)(time/60/60) * 60));
+		minutesValue = (int)(time/60/60);
 
 		text(minutes+":"+seconds, innerWidth-(140), innerHeight - 5);
 
 		String fpsText = (int)(frameRate)+"FPS";
 		text(fpsText, innerWidth-(fpsText.length() * 15), innerHeight - 5);
+
+
+//		System.out.println(currentPlantSelected);
 
 		if (isGameOver) {
 			song.close();
@@ -299,6 +308,7 @@ public class RunGraphicalGame extends PApplet {
 			image(gameOverScreen, 0, 0, innerWidth, innerHeight);
 		}
 	}
+
 
 	public void mouseReleased() {
 		if (gameStartedAnimationTimer <= 0) {
@@ -324,7 +334,29 @@ public class RunGraphicalGame extends PApplet {
 				}
 			}
 
-			if (!sunFound) {
+//			for (int i = 0; i < 10; i++) {
+//				rect(95+(i*52), 4, 50, 75);
+//			}
+			boolean hasCardBeenClicked = false;
+			int whichCard = 0;
+
+			for (int i = 0; i < 2; i++) {
+				if (mouseY >= 4 && mouseY <= 4+75) {
+					if( mouseX >= 95 && mouseX <= 95+(1*50)) {
+						hasCardBeenClicked = true;
+						whichCard = 1;
+						currentPlantSelected = whichCard;
+					}else if (mouseX > 95 + 52 && mouseX < 95+(2*52)) {
+						hasCardBeenClicked = true;
+						whichCard = 2;
+						currentPlantSelected = whichCard;
+					}
+				}
+			}
+
+//			image(sunFloweCard, 95+(i*52), 8, 50, 70);
+
+			if (!sunFound && whichCard == 0) {
 				Location loc = display.gridLocationAt(mouseX, mouseY);
 				int row = loc.getRow();
 				int col = loc.getCol();
@@ -497,8 +529,10 @@ public class RunGraphicalGame extends PApplet {
 	}
 
 	public void plantPeaShooter (int x, int y) {
+		System.out.println("running pea");
 		int cost = 100;
 		if (game.getGrid()[x][y] == null && amountOfSuns >= cost) {
+			System.out.println("running pea 2");
 			ArrayList<PImage> peaShooterIdleAnimation = new ArrayList<PImage>();
 			ArrayList<PImage> peaShooterShootingAnimation = new ArrayList<PImage>();
 
